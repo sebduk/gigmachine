@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     # Scraping
     scrape_user_agent: str = "GigFinder/0.1 (academic job board)"
 
+    # Privacy
+    data_retention_days: int = 0  # 0 = keep forever
+    pii_strip_enabled: bool = True
+
     @property
     def cors_origin_list(self) -> List[str]:
         return json.loads(self.cors_origins)

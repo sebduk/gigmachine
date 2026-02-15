@@ -16,21 +16,22 @@ export type CareerStage =
   | 'senior'
   | 'emeritus';
 
+// Public profile — email is never exposed in public responses
 export interface AcademicProfile {
   id: number;
-  name: string;
-  email: string;
+  handle: string;
   career_stage: CareerStage | null;
-  institution: string | null;
-  department: string | null;
-  bio: string | null;
-  publications_summary: string | null;
-  orcid: string | null;
+  research_summary: string | null;
   match_threshold: number;
   keywords: Keyword[];
   fields: ResearchField[];
   created_at: string;
   updated_at: string;
+}
+
+// Private profile — only returned to the profile owner
+export interface AcademicProfilePrivate extends AcademicProfile {
+  email: string;
 }
 
 export interface FundingOpportunity {

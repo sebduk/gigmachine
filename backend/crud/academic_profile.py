@@ -50,14 +50,10 @@ async def _get_or_create_fields(db: AsyncSession, names: List[str]) -> List[Rese
 
 async def create_profile(db: AsyncSession, data: ProfileCreate) -> AcademicProfile:
     profile = AcademicProfile(
-        name=data.name,
+        handle=data.handle,
         email=data.email,
         career_stage=data.career_stage,
-        institution=data.institution,
-        department=data.department,
-        bio=data.bio,
-        publications_summary=data.publications_summary,
-        orcid=data.orcid,
+        research_summary=data.research_summary,
         match_threshold=data.match_threshold,
     )
     profile.keywords = await _get_or_create_keywords(db, data.keyword_values)
@@ -94,8 +90,7 @@ async def list_profiles(
 async def update_profile(
     db: AsyncSession, profile: AcademicProfile, data: ProfileUpdate
 ) -> AcademicProfile:
-    for field_name in ["name", "career_stage", "institution", "department", "bio",
-                       "publications_summary", "orcid", "match_threshold"]:
+    for field_name in ["handle", "career_stage", "research_summary", "match_threshold"]:
         value = getattr(data, field_name, None)
         if value is not None:
             setattr(profile, field_name, value)

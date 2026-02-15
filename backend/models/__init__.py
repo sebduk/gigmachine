@@ -55,3 +55,4 @@ from backend.models.academic_profile import AcademicProfile  # noqa: E402, F401
 from backend.models.funding_opportunity import FundingOpportunity  # noqa: E402, F401
 from backend.models.data_source import DataSource  # noqa: E402, F401
 from backend.models.match import Match  # noqa: E402, F401
+from backend.models.research_index import ResearchIndex  # noqa: E402, F401

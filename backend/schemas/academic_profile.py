@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 
 from backend.models.academic_profile import CareerStage
 
@@ -23,42 +23,34 @@ class ResearchFieldOut(BaseModel):
 
 
 class ProfileCreate(BaseModel):
-    name: str = Field(max_length=300)
-    email: str = Field(max_length=320)
+    """Create a new profile. Only handle + email required. No real names."""
+    handle: str = Field(max_length=100, description="Your pseudonym — not your real name")
+    email: str = Field(max_length=320, description="For notifications only, never shared")
     career_stage: Optional[CareerStage] = None
-    institution: Optional[str] = Field(default=None, max_length=300)
-    department: Optional[str] = Field(default=None, max_length=300)
-    bio: Optional[str] = None
-    publications_summary: Optional[str] = None
-    orcid: Optional[str] = Field(default=None, max_length=19)
+    research_summary: Optional[str] = Field(
+        default=None,
+        description="Describe your research interests. Avoid including personal details.",
+    )
     keyword_values: List[str] = Field(default_factory=list)
     field_names: List[str] = Field(default_factory=list)
     match_threshold: float = Field(default=0.5, ge=0.0, le=1.0)
 
 
 class ProfileUpdate(BaseModel):
-    name: Optional[str] = Field(default=None, max_length=300)
+    handle: Optional[str] = Field(default=None, max_length=100)
     career_stage: Optional[CareerStage] = None
-    institution: Optional[str] = Field(default=None, max_length=300)
-    department: Optional[str] = Field(default=None, max_length=300)
-    bio: Optional[str] = None
-    publications_summary: Optional[str] = None
-    orcid: Optional[str] = Field(default=None, max_length=19)
+    research_summary: Optional[str] = None
     keyword_values: Optional[List[str]] = None
     field_names: Optional[List[str]] = None
     match_threshold: Optional[float] = Field(default=None, ge=0.0, le=1.0)
 
 
 class ProfileOut(BaseModel):
+    """Public profile response. Note: email is intentionally excluded."""
     id: int
-    name: str
-    email: str
+    handle: str
     career_stage: Optional[CareerStage] = None
-    institution: Optional[str] = None
-    department: Optional[str] = None
-    bio: Optional[str] = None
-    publications_summary: Optional[str] = None
-    orcid: Optional[str] = None
+    research_summary: Optional[str] = None
     match_threshold: float
     keywords: List[KeywordOut] = []
     fields: List[ResearchFieldOut] = []
@@ -66,3 +58,35 @@ class ProfileOut(BaseModel):
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class ProfilePrivateOut(ProfileOut):
+    """Private profile response — includes email. Only returned to the profile owner."""
+    email: str
+
+
+class ResearchIndexOut(BaseModel):
+    id: int
+    source_type: str
+    extracted_topics: Optional[str] = None
+    extracted_methods: Optional[str] = None
+    extracted_domains: Optional[str] = None
+    work_type: Optional[str] = None
+    experience_years: Optional[int] = None
+    summary: Optional[str] = None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class DocumentUpload(BaseModel):
+    """Upload a document (CV, publication list) for research indexing.
+    The raw text is processed to extract research topics, then discarded."""
+    source_type: str = Field(description="cv, publication, grant_history")
+    raw_text: str = Field(description="Document text content. PII will be stripped before storage.")
+
+
+class PiiWarning(BaseModel):
+    """Returned when PII is detected in user-submitted text."""
+    warnings: List[str]
+    field_name: str

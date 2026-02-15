@@ -66,7 +66,7 @@ function Dashboard() {
         <>
           <div style={cardStyle}>
             <h2>Your Profile</h2>
-            <p><strong>{profile.name}</strong> — {profile.institution || 'No institution set'}</p>
+            <p><strong>{profile.handle}</strong> — {profile.career_stage || 'Career stage not set'}</p>
             <p>
               Keywords: {profile.keywords.map(k => k.value).join(', ') || 'None set'}
             </p>
