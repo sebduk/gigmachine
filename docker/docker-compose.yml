@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+  mariadb:
+    image: mariadb:11
+    container_name: gigfinder-db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpassword
+      MARIADB_DATABASE: gigfinder
+      MARIADB_USER: gigfinder
+      MARIADB_PASSWORD: gigfinder
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    container_name: gigfinder-backend
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mariadb
+    volumes:
+      - ../backend:/app/backend
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+    container_name: gigfinder-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ../frontend:/app/frontend
+      - /app/frontend/node_modules
+
+volumes:
+  mariadb_data:
